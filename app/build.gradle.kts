@@ -12,7 +12,7 @@ android {
     }
 
     defaultConfig {
-        applicationId = "com.gps.gpsdatacollector"
+        applicationId = "com.extreme.androiddatacollector"
         minSdk = 30
         targetSdk = 36
         versionCode = 1

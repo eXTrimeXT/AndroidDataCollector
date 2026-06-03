@@ -742,26 +742,6 @@ fun DeviceInfoScreenPreview_Light() {
     }
 }
 
-@Preview(showBackground = true, showSystemUi = true, name = "Основной экран - Темная тема")
-@Composable
-fun DeviceInfoScreenPreview_Dark() {
-    MaterialTheme(colorScheme = darkColorScheme()) {
-        Surface(color = MaterialTheme.colorScheme.background) {
-            DeviceInfoScreenPreviewContent(deviceInfo = mockDeviceInfo())
-        }
-    }
-}
-
-@Preview(showBackground = true, showSystemUi = true, name = "Экран загрузки")
-@Composable
-fun DeviceInfoScreenPreview_Loading() {
-    MaterialTheme {
-        Surface(color = MaterialTheme.colorScheme.background) {
-            LoadingContent()
-        }
-    }
-}
-
 @Preview(showBackground = true, showSystemUi = true, name = "Экран запроса разрешений")
 @Composable
 fun DeviceInfoScreenPreview_Permissions() {
@@ -772,111 +752,6 @@ fun DeviceInfoScreenPreview_Permissions() {
     }
 }
 
-@Preview(showBackground = true, name = "Карточка управления службой - Активна")
-@Composable
-fun ServiceControlCardPreview_Running() {
-    MaterialTheme {
-        Surface {
-            ServiceControlCard(
-                isRunning = true,
-                onStart = {},
-                onStop = {}
-            )
-        }
-    }
-}
-
-@Preview(showBackground = true, name = "Карточка управления службой - Остановлена")
-@Composable
-fun ServiceControlCardPreview_Stopped() {
-    MaterialTheme {
-        Surface {
-            ServiceControlCard(
-                isRunning = false,
-                onStart = {},
-                onStop = {}
-            )
-        }
-    }
-}
-
-@Preview(showBackground = true, name = "Кнопка отправки - Idle")
-@Composable
-fun SendButtonPreview_Idle() {
-    MaterialTheme {
-        Surface {
-            SendButton(status = SendStatus.Idle, onClick = {})
-        }
-    }
-}
-
-@Preview(showBackground = true, name = "Кнопка отправки - Loading")
-@Composable
-fun SendButtonPreview_Loading() {
-    MaterialTheme {
-        Surface {
-            SendButton(status = SendStatus.Loading, onClick = {})
-        }
-    }
-}
-
-@Preview(showBackground = true, name = "Кнопка отправки - Success")
-@Composable
-fun SendButtonPreview_Success() {
-    MaterialTheme {
-        Surface {
-            SendButton(
-                status = SendStatus.Success("Данные успешно отправлены! Код: 200"),
-                onClick = {}
-            )
-        }
-    }
-}
-
-@Preview(showBackground = true, name = "Кнопка отправки - Error")
-@Composable
-fun SendButtonPreview_Error() {
-    MaterialTheme {
-        Surface {
-            SendButton(
-                status = SendStatus.Error("Не удалось связаться с сервером"),
-                onClick = {}
-            )
-        }
-    }
-}
-
-@Preview(showBackground = true, name = "Секция системы")
-@Composable
-fun SectionCardPreview_System() {
-    MaterialTheme {
-        Surface {
-            SectionCard(
-                title = "Система",
-                icon = Icons.Outlined.Settings,
-                items = listOf(
-                    InfoItem("Версия Android", "Android 11", Icons.Outlined.Android),
-                    InfoItem("API Level", "API 30", Icons.Outlined.Code),
-                    InfoItem("Язык", "ru-RU", Icons.Outlined.Language)
-                )
-            )
-        }
-    }
-}
-
-@Preview(showBackground = true, name = "Заголовок устройства")
-@Composable
-fun DeviceHeaderCardPreview() {
-    MaterialTheme {
-        Surface {
-            DeviceHeaderCard(
-                deviceName = "Honeywell EDA52",
-                androidVersion = "Android 11",
-                androidId = "adb816e29cfa6e24"
-            )
-        }
-    }
-}
 
 // Вспомогательная функция для превью (имитация экрана с данными)
 @OptIn(ExperimentalMaterial3Api::class)

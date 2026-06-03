@@ -22,6 +22,6 @@ dependencyResolutionManagement {
     }
 }
 
-rootProject.name = "GPSDataCollector"
+rootProject.name = "AndroidDataCollector"
 include(":app")
  
