@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<network-security-config>
+    <!-- Разрешаем HTTP только для вашего локального сервера -->
+    <domain-config cleartextTrafficPermitted="true">
+        <domain includeSubdomains="true">10.168.143.7</domain>
+    </domain-config>
+</network-security-config>
