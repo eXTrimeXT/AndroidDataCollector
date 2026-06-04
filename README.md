@@ -9,3 +9,4 @@ adb logcat -s DataCollectionService:D DataSender:D DataCollector:D
 
 Принудительный запуск службы через ADB:
 adb shell am startservice -a ACTION_START -n com.extreme.androiddatacollector/.DataCollectionService
+adb shell am start-foreground-service -a ACTION_START -n com.extreme.androiddatacollector/.DataCollectionService

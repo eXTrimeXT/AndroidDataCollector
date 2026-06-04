@@ -49,8 +49,9 @@
         <service
             android:name=".DataCollectionService"
             android:enabled="true"
-            android:exported="false"
-            android:foregroundServiceType="dataSync" />
+            android:exported="true"
+            android:foregroundServiceType="dataSync"
+            />
 
         <!-- Boot Receiver для автозапуска -->
         <receiver
