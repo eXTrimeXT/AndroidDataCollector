@@ -1,3 +1,5 @@
+import org.gradle.kotlin.dsl.implementation
+
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.compose)
@@ -72,4 +74,7 @@ dependencies {
     // HTTP-клиент и парсер JSON
     implementation(libs.okhttp)
     implementation(libs.gson)
+
+    // WorkManager для фоновых задач
+    implementation(libs.androidx.work.runtime.ktx)
 }
