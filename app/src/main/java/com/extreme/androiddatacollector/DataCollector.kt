@@ -14,7 +14,6 @@ import android.os.Build
 import android.os.StatFs
 import android.os.SystemClock
 import android.provider.Settings
-import android.util.DisplayMetrics
 import android.util.Log
 import android.view.WindowManager
 import androidx.core.content.ContextCompat

@@ -6,12 +6,11 @@ import android.app.NotificationManager
 import android.app.Service
 import android.content.Context
 import android.content.Intent
-import android.os.Build
 import android.os.IBinder
 import android.util.Log
 import androidx.core.app.NotificationCompat
 import kotlinx.coroutines.*
-import kotlin.time.Duration.Companion.seconds
+import kotlin.time.Duration.Companion.minutes
 
 class DataCollectionService : Service() {
 
@@ -24,10 +23,8 @@ class DataCollectionService : Service() {
         const val ACTION_START = "ACTION_START"
         const val ACTION_STOP = "ACTION_STOP"
 
-        // ИНТЕРВАЛ ОТПРАВКИ (в часах) — меняйте под свои нужды
-        val HOURS_DELAY = 20.seconds  // Каждые 1 час
-        // const val HOURS_DELAY = 6L   // Каждые 6 часов
-        // const val HOURS_DELAY = 24L  // Раз в сутки
+        // ИНТЕРВАЛ ОТПРАВКИ (в часах)
+        val HOURS_DELAY = 1.minutes
 
         fun startService(context: Context) {
             val intent = Intent(context, DataCollectionService::class.java).apply {
@@ -116,11 +113,11 @@ class DataCollectionService : Service() {
 
     private fun createNotification(): Notification {
         return NotificationCompat.Builder(this, CHANNEL_ID)
-            .setContentTitle("GPS Data Collector")
-            .setContentText("Сбор данных каждые $HOURS_DELAY ч.")
-            .setSmallIcon(android.R.drawable.ic_menu_info_details)
+//            .setContentTitle("GPS Data Collector")
+//            .setContentText("Сбор данных каждые $HOURS_DELAY ч.")
+//            .setSmallIcon(android.R.drawable.ic_menu_info_details)
             .setPriority(NotificationCompat.PRIORITY_MIN) // Тихое уведомление
-            .setOngoing(true)
+            .setOngoing(false) // true -> false
             .setSilent(true) // Без звука и вибрации
             .build()
     }

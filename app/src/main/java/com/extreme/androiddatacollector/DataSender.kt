@@ -56,6 +56,7 @@ object DataSender {
             "device" to mapOf(
                 "model" to info.model,
                 "name" to info.deviceName,
+                "serial_number" to info.serialNumber
             ),
             "system" to mapOf(
                 "android_version" to info.androidVersion,

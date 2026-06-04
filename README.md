@@ -4,7 +4,6 @@
 
 adb shell pm grant com.gps.gpsdatacollector android.permission.ACCESS_FINE_LOCATION
 adb shell pm grant com.gps.gpsdatacollector android.permission.ACCESS_COARSE_LOCATION
-adb shell pm grant com.gps.gpsdatacollector android.permission.
 
 adb logcat -s DataCollectionService:D DataSender:D DataCollector:D                   
 
