@@ -728,7 +728,8 @@ private fun mockDeviceInfo(): DeviceInfo {
         systemLanguage = "ru-RU",
         timezone = "Europe/Moscow",
         wifiGateway = "wifiGateway",
-        requestTime = "24.09.2026 18:34:23"
+        requestTime = "24.09.2026 18:34:23",
+        serialNumber = "2756y7gyy654rd"
     )
 }
 

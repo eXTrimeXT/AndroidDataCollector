@@ -2,27 +2,32 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools">
 
-    <!-- Разрешения для сети и Wi-Fi -->
+    <!-- Базовые разрешения (работают на всех версиях) -->
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
-
-    <!-- Разрешения для Bluetooth -->
-    <uses-permission android:name="android.permission.BLUETOOTH" />
-    <uses-permission android:name="android.permission.BLUETOOTH_CONNECT" />
-
-    <!-- Разрешения для Foreground Service -->
-    <uses-permission android:name="android.permission.FOREGROUND_SERVICE"
-        tools:ignore="ForegroundServicesPolicy" />
-    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_DATA_SYNC" />
-
-    <!-- Разрешение для автозапуска -->
+    <uses-permission android:name="android.permission.READ_PHONE_STATE" />
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
 
-    <!-- Разрешение для уведомлений (Android 13+) -->
-    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+    <!-- Bluetooth (для Android 11 и ниже) -->
+    <uses-permission android:name="android.permission.BLUETOOTH"
+        android:maxSdkVersion="30" />
+
+    <!-- Bluetooth (для Android 12+, API 31+) -->
+    <uses-permission android:name="android.permission.BLUETOOTH_CONNECT"
+        android:minSdkVersion="31" />
+
+    <!-- Foreground Service -->
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE"
+        tools:ignore="ForegroundServicesPolicy" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_DATA_SYNC"
+        android:minSdkVersion="34" />
+
+    <!-- Уведомления (для Android 13+, API 33+) -->
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS"
+        android:minSdkVersion="33" />
 
     <application
         android:allowBackup="true"
@@ -33,27 +38,15 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.GPSDataCollector"
-        android:usesCleartextTraffic="true">
+        android:usesCleartextTraffic="true"
+        tools:targetApi="31">
 
-<!--        <activity-->
-<!--            android:name=".MainActivity"-->
-<!--            android:exported="true"-->
-<!--            android:theme="@style/Theme.GPSDataCollector">-->
-<!--            <intent-filter>-->
-<!--                <action android:name="android.intent.action.MAIN" />-->
-<!--                <category android:name="android.intent.category.LAUNCHER" />-->
-<!--            </intent-filter>-->
-<!--        </activity>-->
-
-        <!-- Foreground Service -->
         <service
             android:name=".DataCollectionService"
             android:enabled="true"
             android:exported="true"
-            android:foregroundServiceType="dataSync"
-            />
+            android:foregroundServiceType="dataSync" />
 
-        <!-- Boot Receiver для автозапуска -->
         <receiver
             android:name=".BootReceiver"
             android:enabled="true"
@@ -63,6 +56,5 @@
                 <action android:name="android.intent.action.QUICKBOOT_POWERON" />
             </intent-filter>
         </receiver>
-
     </application>
 </manifest>

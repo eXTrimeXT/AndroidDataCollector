@@ -33,22 +33,14 @@ class DataCollectionService : Service() {
             val intent = Intent(context, DataCollectionService::class.java).apply {
                 action = ACTION_START
             }
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                context.startForegroundService(intent)
-            } else {
-                context.startService(intent)
-            }
+            context.startForegroundService(intent)
         }
 
         fun stopService(context: Context) {
             val intent = Intent(context, DataCollectionService::class.java).apply {
                 action = ACTION_STOP
             }
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                context.startForegroundService(intent)
-            } else {
-                context.startService(intent)
-            }
+            context.startForegroundService(intent)
         }
     }
 
@@ -111,17 +103,15 @@ class DataCollectionService : Service() {
     }
 
     private fun createNotificationChannel() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            val channel = NotificationChannel(
-                CHANNEL_ID,
-                "Фоновый сбор данных",
-                NotificationManager.IMPORTANCE_MIN // Минимальная важность — не беспокоит
-            ).apply {
-                description = "Служба отправляет данные о устройстве на сервер"
-                setShowBadge(false) // Не показывать бейдж на иконке
-            }
-            getSystemService(NotificationManager::class.java)?.createNotificationChannel(channel)
+        val channel = NotificationChannel(
+            CHANNEL_ID,
+            "Фоновый сбор данных",
+            NotificationManager.IMPORTANCE_MIN // Минимальная важность — не беспокоит
+        ).apply {
+            description = "Служба отправляет данные о устройстве на сервер"
+            setShowBadge(false) // Не показывать бейдж на иконке
         }
+        getSystemService(NotificationManager::class.java)?.createNotificationChannel(channel)
     }
 
     private fun createNotification(): Notification {

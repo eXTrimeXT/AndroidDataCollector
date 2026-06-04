@@ -32,13 +32,9 @@ data class DeviceInfo(
     val androidApiVersion: String?,
     val buildNumber: String?,
     val androidId: String?,
-
-    // === ДОБАВЛЕНЫ НОВЫЕ ПОЛЯ ===
+    val serialNumber: String?,
     val wifiGateway: String?,
     val requestTime: String,
-    // ============================
-
-    // Железо
     val cpuCores: Int,
     val cpuArchitecture: String?,
     val totalRam: String?,
@@ -46,27 +42,17 @@ data class DeviceInfo(
     val totalStorage: String?,
     val availableStorage: String?,
     val cameraCount: Int,
-
-    // Экран
     val screenResolution: String?,
-
-    // Сеть
     val networkType: String?,
     val wifiSsid: String?,
     val wifiBssid: String?,
     val macAddress: String?,
     val ipAddresses: List<String>,
-
-    // Bluetooth
     val bluetoothName: String?,
     val bluetoothMac: String?,
-
-    // Батарея
     val batteryLevel: Int,
     val batteryStatus: String?,
     val batteryTemp: String?,
-
-    // Система
     val uptime: String?,
     val systemLanguage: String?,
     val timezone: String?
@@ -77,42 +63,39 @@ object DeviceDataCollector {
     fun collect(context: Context): DeviceInfo {
         Log.d("DataCollector", "Начало расширенного сбора данных")
 
-        // 1. Базовая информация
-        val deviceName = runCatching { Settings.Global.getString(context.contentResolver, Settings.Global.DEVICE_NAME) }.getOrNull()
+        // Базовая информация
+        val deviceName = runCatching {
+            Settings.Global.getString(context.contentResolver, Settings.Global.DEVICE_NAME)
+        }.getOrNull()
         val model = "${Build.MANUFACTURER} ${Build.MODEL}"
         val androidVersion = "Android ${Build.VERSION.RELEASE}"
         val androidApiVersion = "API ${Build.VERSION.SDK_INT}"
         val buildNumber = Build.DISPLAY
         val androidId = Settings.Secure.getString(context.contentResolver, Settings.Secure.ANDROID_ID)
 
-        // === СБОР НОВЫХ ПОЛЕЙ ===
-        // 1. Время запроса (ГГГГ-ММ-ДД ЧЧ:ММ:СС) <--- ДОБАВИТЬ ЭТО
+        // Время запроса
         val requestTime = SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault()).format(Date())
 
-        // 2. Серийный номер
+        // Серийный номер (может быть недоступен на Android 10+)
         val serialNumber = runCatching {
             Build.getSerial()
-        }.getOrNull()?.takeIf { it != "unknown" }
+        }.getOrNull()?.takeIf { it != "unknown" && it != "UNKNOWN" }
 
-        // 3. Шлюз Wi-Fi
+        // Шлюз Wi-Fi
         val wifiGateway = runCatching {
             val wifiManager = context.getSystemService(Context.WIFI_SERVICE) as? WifiManager
             val dhcpInfo = wifiManager?.dhcpInfo
             val gatewayInt = dhcpInfo?.gateway ?: 0
             if (gatewayInt != 0) {
-                // Преобразование Int в IP-адрес
                 "${gatewayInt and 0xff}.${gatewayInt shr 8 and 0xff}.${gatewayInt shr 16 and 0xff}.${gatewayInt shr 24 and 0xff}"
-            } else {
-                null
-            }
+            } else null
         }.getOrNull()
-        // =======================
 
-        // 4. Процессор
+        // Процессор
         val cpuCores = Runtime.getRuntime().availableProcessors()
         val cpuArchitecture = Build.SUPPORTED_ABIS.firstOrNull() ?: "Unknown"
 
-        // 5. ОЗУ (RAM)
+        // ОЗУ
         var totalRam: String? = null
         var availableRam: String? = null
         runCatching {
@@ -123,7 +106,7 @@ object DeviceDataCollector {
             availableRam = formatBytes(memInfo.availMem)
         }
 
-        // 6. Память (Storage)
+        // Память
         var totalStorage: String? = null
         var availableStorage: String? = null
         runCatching {
@@ -132,26 +115,20 @@ object DeviceDataCollector {
             availableStorage = formatBytes(statFs.availableBytes)
         }
 
-        // 7. Камеры
+        // Камеры
         val cameraCount = runCatching {
             val cameraManager = context.getSystemService(Context.CAMERA_SERVICE) as CameraManager
             cameraManager.cameraIdList.size
         }.getOrDefault(0)
 
-        // 8. Экран
+        // Экран
         val screenResolution = runCatching {
             val windowManager = context.getSystemService(Context.WINDOW_SERVICE) as WindowManager
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-                val metrics = windowManager.currentWindowMetrics
-                "${metrics.bounds.width()} x ${metrics.bounds.height()}"
-            } else {
-                val displayMetrics = DisplayMetrics()
-                windowManager.defaultDisplay.getMetrics(displayMetrics)
-                "${displayMetrics.widthPixels} x ${displayMetrics.heightPixels}"
-            }
+            val metrics = windowManager.currentWindowMetrics
+            "${metrics.bounds.width()} x ${metrics.bounds.height()}"
         }.getOrNull()
 
-        // 9. Сеть (Тип подключения)
+        // Тип подключения
         val networkType = runCatching {
             val connManager = context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
             val network = connManager.activeNetwork
@@ -166,7 +143,7 @@ object DeviceDataCollector {
             }
         }.getOrNull()
 
-        // 10. Wi-Fi детали
+        // Wi-Fi детали
         val wifiManager = context.getSystemService(Context.WIFI_SERVICE) as? WifiManager
         val wifiInfo = wifiManager?.connectionInfo
         val wifiSsid = wifiInfo?.ssid?.takeIf { it != "<unknown ssid>" }?.replace("\"", "")
@@ -178,26 +155,34 @@ object DeviceDataCollector {
         }.getOrNull()
         val ipAddresses = getIpAddresses()
 
-        // 11. Bluetooth
+        // Bluetooth (безопасная обработка для разных API)
         var btName: String? = null
         var btMac: String? = null
         try {
             val adapter = BluetoothAdapter.getDefaultAdapter()
             if (adapter != null) {
                 btName = adapter.name
-                btMac = getMacByInterface("bt-pan") ?: getMacByInterface("bluetooth") ?: adapter.address.takeIf { it != "02:00:00:00:00:00" }
+                btMac = getMacByInterface("bt-pan")
+                    ?: getMacByInterface("bluetooth")
+                            ?: adapter.address.takeIf { it != "02:00:00:00:00:00" }
             }
         } catch (e: SecurityException) {
             Log.w("DataCollector", "Нет разрешения BLUETOOTH_CONNECT")
+        } catch (e: Exception) {
+            Log.e("DataCollector", "Ошибка получения Bluetooth: ${e.message}")
         }
 
-        // 12. Батарея (детали)
+        // Батарея
         var batteryLevel = -1
         var batteryStatus = "Неизвестно"
         var batteryTemp = "0.0 °C"
         runCatching {
             val filter = IntentFilter(Intent.ACTION_BATTERY_CHANGED)
-            val intent = ContextCompat.registerReceiver(context, null, filter, ContextCompat.RECEIVER_EXPORTED)
+            val intent = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                ContextCompat.registerReceiver(context, null, filter, ContextCompat.RECEIVER_EXPORTED)
+            } else {
+                context.registerReceiver(null, filter)
+            }
             batteryLevel = intent?.getIntExtra(BatteryManager.EXTRA_LEVEL, -1) ?: -1
             val status = intent?.getIntExtra(BatteryManager.EXTRA_STATUS, -1) ?: -1
             batteryStatus = when (status) {
@@ -211,7 +196,7 @@ object DeviceDataCollector {
             batteryTemp = "${temp / 10.0f} °C"
         }
 
-        // 13. Системные метрики
+        // Системные метрики
         val uptime = formatUptime(SystemClock.elapsedRealtime())
         val systemLanguage = Locale.getDefault().toLanguageTag()
         val timezone = java.util.TimeZone.getDefault().id
@@ -223,7 +208,9 @@ object DeviceDataCollector {
             androidApiVersion = androidApiVersion,
             buildNumber = buildNumber,
             androidId = androidId,
+            serialNumber = serialNumber,
             wifiGateway = wifiGateway,
+            requestTime = requestTime,
             cpuCores = cpuCores,
             cpuArchitecture = cpuArchitecture,
             totalRam = totalRam,
@@ -244,8 +231,7 @@ object DeviceDataCollector {
             batteryTemp = batteryTemp,
             uptime = uptime,
             systemLanguage = systemLanguage,
-            timezone = timezone,
-            requestTime = requestTime
+            timezone = timezone
         )
     }
 
