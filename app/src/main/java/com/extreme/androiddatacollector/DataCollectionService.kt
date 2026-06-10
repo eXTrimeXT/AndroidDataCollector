@@ -13,6 +13,7 @@ import kotlinx.coroutines.cancelChildren
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlin.time.Duration.Companion.minutes
+import kotlin.time.Duration.Companion.seconds
 
 class DataCollectionService : Service() {
 
@@ -23,7 +24,7 @@ class DataCollectionService : Service() {
         const val ACTION_START = "ACTION_START"
         const val ACTION_STOP = "ACTION_STOP"
 
-        val HOURS_DELAY = 15.minutes
+        val HOURS_DELAY = 15.seconds
 
         fun startService(context: Context) {
             val intent = Intent(context, DataCollectionService::class.java).apply {

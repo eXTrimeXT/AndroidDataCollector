@@ -378,6 +378,14 @@ adb logcat -s DataCollectionService:D DataSender:D DataCollector:D
 adb shell am startservice -a ACTION_START -n com.extreme.androiddatacollector/.DataCollectionService
 adb shell am start-foreground-service -a ACTION_START -n com.extreme.androiddatacollector/.DataCollectionService
 
+# Назначить права Device Owner
+adb shell dpm set-device-owner com.extreme.androiddatacollector/.MyDeviceAdminReceiver
+
+# Посмотреть права
+adb shell dumpsys device_policy | findstr com.extreme.androiddatacollector
+
+# Снять права Device Owner
+adb shell dpm remove-active-admin com.extreme.androiddatacollector/.MyDeviceAdminReceiver
 ```
 
 ### Типичные проблемы

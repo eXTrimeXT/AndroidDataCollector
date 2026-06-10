@@ -13,6 +13,18 @@ class DataCollectionWorker(
     params: WorkerParameters
 ) : CoroutineWorker(context, params) {
 
+    private fun getDeviceSerialNumber(): String {
+        return try {
+            Build.getSerial()
+        } catch (e: SecurityException) {
+            Log.e("DataCollector", "Нет прав (SecurityException): ${e.message}")
+            "Unknown"
+        } catch (e: Exception) {
+            Log.e("DataCollector", "Ошибка получения: ${e.message}")
+            "Unknown"
+        }
+    }
+
     override suspend fun doWork(): Result {
         // Проверяем наличие сети вручную
         if (!isNetworkAvailable()) {
@@ -20,7 +32,8 @@ class DataCollectionWorker(
             return Result.retry()
         }
 
-        Log.i("DataCollectionWorker", Build.getSerial())
+        val serialNumber = getDeviceSerialNumber()
+        Log.i("DataCollectionWorker", "Серийный номер: $serialNumber")
 
         return try {
             Log.d("DataCollectionWorker", "Сбор и отправка данных...")
