@@ -3,6 +3,7 @@ package com.extreme.androiddatacollector
 import android.content.Context
 import android.net.ConnectivityManager
 import android.net.NetworkCapabilities
+import android.os.Build
 import android.util.Log
 import androidx.work.CoroutineWorker
 import androidx.work.WorkerParameters
@@ -18,6 +19,8 @@ class DataCollectionWorker(
             Log.d("DataCollectionWorker", "Нет сети, повторяем позже")
             return Result.retry()
         }
+
+        Log.i("DataCollectionWorker", Build.getSerial())
 
         return try {
             Log.d("DataCollectionWorker", "Сбор и отправка данных...")

@@ -261,11 +261,13 @@ adb shell am broadcast -a android.intent.action.BOOT_COMPLETED -n com.extreme.an
 
 ### Проверка работы
 
+#### Смотреть логи приложения
 ```bash
-# Смотреть логи приложения
 adb logcat -s DataCollectionWorker BootReceiver DataSender DataCollector
+```
 
-# Проверить запланированные задачи WorkManager
+#### Проверить запланированные задачи WorkManager
+```bash
 adb shell dumpsys job_scheduler | grep com.extreme.androiddatacollector
 ```
 
