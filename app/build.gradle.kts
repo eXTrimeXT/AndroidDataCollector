@@ -1,10 +1,18 @@
+import org.apache.tools.ant.property.LocalProperties
 import org.gradle.kotlin.dsl.implementation
 import java.util.Base64
+import java.util.Properties
 import kotlin.collections.toByteArray
 
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.compose)
+}
+
+val localProperties = Properties()
+val localPropertiesFile = rootProject.file("local.properties")
+if (localPropertiesFile.exists()) {
+    localProperties.load(localPropertiesFile.inputStream())
 }
 
 android {
@@ -34,9 +42,9 @@ android {
         }
         create("my_release") {
             storeFile = file("release.keystore")
-            storePassword = "release"
-            keyAlias = "release"
-            keyPassword = "release"
+            storePassword = localProperties.getProperty("RELEASE_STORE_PASSWORD", "")
+            keyAlias = localProperties.getProperty("RELEASE_KEY_ALIAS", "")
+            keyPassword = localProperties.getProperty("RELEASE_KEY_PASSWORD", "")
         }
     }
 
@@ -64,8 +72,8 @@ android {
 
 tasks.register("printSigningCertSha256") {
     doLast {
-        val keystoreFile = file("./debug.keystore")
-        val keystorePassword = "android"
+        val keystoreFile = file("./release.keystore")
+        val keystorePassword = ""
         val keyAlias = "android"
 
         val output = providers.exec {
