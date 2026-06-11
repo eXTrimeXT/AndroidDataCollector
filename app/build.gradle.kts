@@ -1,4 +1,6 @@
 import org.gradle.kotlin.dsl.implementation
+import java.util.Base64
+import kotlin.collections.toByteArray
 
 plugins {
     alias(libs.plugins.android.application)
@@ -30,6 +32,12 @@ android {
             keyAlias = "android"
             keyPassword = "android"
         }
+        create("my_release") {
+            storeFile = file("release.keystore")
+            storePassword = "release"
+            keyAlias = "release"
+            keyPassword = "release"
+        }
     }
 
     buildTypes {
@@ -39,6 +47,7 @@ android {
         }
         release {
             // Для релиза используем отдельный release.keystore!
+            signingConfig = signingConfigs.getByName("my_release")
             isMinifyEnabled = true
             proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
         }
@@ -50,6 +59,39 @@ android {
     }
     buildFeatures {
         compose = true
+    }
+}
+
+tasks.register("printSigningCertSha256") {
+    doLast {
+        val keystoreFile = file("./debug.keystore")
+        val keystorePassword = "android"
+        val keyAlias = "android"
+
+        val output = providers.exec {
+            commandLine(
+                "keytool", "-list", "-v",
+                "-keystore", keystoreFile.absolutePath,
+                "-alias", keyAlias,
+                "-storepass", keystorePassword
+            )
+        }.standardOutput.asText.get()
+
+        val sha256Hex = output.lines()
+            .firstOrNull { it.trim().startsWith("SHA256:") }
+            ?.substringAfter(":")?.trim()
+            ?.replace(":", "")
+
+        if (sha256Hex.isNullOrBlank()) {
+            println("Не удалось найти SHA256 в выводе keytool!")
+            return@doLast
+        }
+
+        val sha256Bytes = sha256Hex.chunked(2).map { it.toInt(16).toByte() }.toByteArray()
+        val base64 = Base64.getEncoder().encodeToString(sha256Bytes)
+
+        println("SHA-256 (hex): $sha256Hex")
+        println("SHA-256 (Base64) for QR-code: $base64")
     }
 }
 
