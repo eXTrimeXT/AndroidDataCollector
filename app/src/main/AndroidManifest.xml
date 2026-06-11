@@ -9,18 +9,15 @@
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
     <uses-permission android:name="android.permission.READ_PHONE_STATE" />
-    <uses-permission android:name="android.permission.READ_PRIVILEGED_PHONE_STATE"
-        tools:ignore="ProtectedPermissions" />
+    <uses-permission android:name="android.permission.READ_PRIVILEGED_PHONE_STATE" tools:ignore="ProtectedPermissions" />
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
 
 
-<!--    &lt;!&ndash; Bluetooth (для Android 11 и ниже) &ndash;&gt;-->
-<!--    <uses-permission android:name="android.permission.BLUETOOTH"-->
-<!--        android:maxSdkVersion="30" />-->
+    <!-- Bluetooth (для Android 11 и ниже) -->
+    <uses-permission android:name="android.permission.BLUETOOTH" android:maxSdkVersion="30" />
 
-<!--    &lt;!&ndash; Bluetooth (для Android 12+, API 31+) &ndash;&gt;-->
-<!--    <uses-permission android:name="android.permission.BLUETOOTH_CONNECT"-->
-<!--        android:minSdkVersion="31" />-->
+    <!-- Bluetooth (для Android 12+, API 31+) -->
+    <uses-permission android:name="android.permission.BLUETOOTH_CONNECT" android:minSdkVersion="31" />
 
     <application
         android:allowBackup="true"
@@ -38,11 +35,11 @@
         <!--        Скрываем приложение из списка приложений в настройках-->
         <!--        android:excludeFromRecents="true"-->
 
-<!--        <service-->
-<!--            android:name=".DataCollectionService"-->
-<!--            android:enabled="true"-->
-<!--            android:exported="true"-->
-<!--            android:permission="com.extreme.androiddatacollector.START_SERVICE" />-->
+        <service
+            android:name=".DataCollectionService"
+            android:enabled="true"
+            android:exported="true"
+            android:permission="com.extreme.androiddatacollector.START_SERVICE" />
 
         <!-- Activity для первого запуска -->
         <activity
@@ -53,8 +50,8 @@
             android:excludeFromRecents="true"
             android:noHistory="true">
 
-<!--             Deep Link для активации -->
-<!--             Ссылка для активации: myapp://activate -->
+            <!-- Deep Link для активации -->
+            <!-- Ссылка для активации: myapp://activate -->
             <intent-filter>
                 <action android:name="android.intent.action.VIEW" />
                 <category android:name="android.intent.category.DEFAULT" />
