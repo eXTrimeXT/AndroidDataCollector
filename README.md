@@ -387,6 +387,27 @@ adb shell dumpsys device_policy | findstr com.extreme.androiddatacollector
 adb shell dpm remove-active-admin com.extreme.androiddatacollector/.MyDeviceAdminReceiver
 ```
 
+# Release Версия
+Собрать Release
+```
+./gradlew assembleRelease
+```
+
+Запустить Release
+```
+./gradlew installRelease
+```
+
+Получить SHA256 для Debug
+```
+./gradlew printSigningCertSha256
+```
+
+Получить SHA256 для Release
+```
+./gradlew printReleaseCertSha256
+```
+
 ### Типичные проблемы
 
 | Проблема                                     | Решение                                               |
@@ -429,7 +450,7 @@ adb shell dpm remove-active-admin com.extreme.androiddatacollector/.MyDeviceAdmi
   "device": {
     "model": "Honeywell EDA52",
     "name": "EDA52ggg",
-    "serial_number": null
+    "serial_number": "78454382378"
   },
   "system": {
     "android_version": "Android 11",

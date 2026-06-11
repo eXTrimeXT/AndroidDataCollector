@@ -1,4 +1,3 @@
-import org.apache.tools.ant.property.LocalProperties
 import org.gradle.kotlin.dsl.implementation
 import java.util.Base64
 import java.util.Properties
@@ -73,8 +72,8 @@ android {
 tasks.register("printReleaseCertSha256") {
     doLast {
         val keystoreFile = file("./release.keystore")
-        val keystorePassword = localProperties.getProperty("RELEASE_STORE_PASSWORD", "")
-        val keyAlias = localProperties.getProperty("RELEASE_KEY_ALIAS", "")
+        val keystorePassword = localProperties.getProperty("RELEASE_STORE_PASSWORD")
+        val keyAlias = localProperties.getProperty("RELEASE_KEY_ALIAS")
 
         val output = providers.exec {
             commandLine(
@@ -98,8 +97,8 @@ tasks.register("printReleaseCertSha256") {
         val sha256Bytes = sha256Hex.chunked(2).map { it.toInt(16).toByte() }.toByteArray()
         val base64 = Base64.getEncoder().encodeToString(sha256Bytes)
 
-        println("✅ SHA-256 (hex): $sha256Hex")
-        println("✅ SHA-256 (Base64) for QR-code: $base64")
+        println("SHA-256 (hex): $sha256Hex")
+        println("SHA-256 (Base64) for QR-code: $base64")
     }
 }
 
