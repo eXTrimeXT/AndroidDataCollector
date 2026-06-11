@@ -70,11 +70,11 @@ android {
     }
 }
 
-tasks.register("printSigningCertSha256") {
+tasks.register("printReleaseCertSha256") {
     doLast {
         val keystoreFile = file("./release.keystore")
-        val keystorePassword = ""
-        val keyAlias = "android"
+        val keystorePassword = localProperties.getProperty("RELEASE_STORE_PASSWORD", "")
+        val keyAlias = localProperties.getProperty("RELEASE_KEY_ALIAS", "")
 
         val output = providers.exec {
             commandLine(
@@ -98,8 +98,8 @@ tasks.register("printSigningCertSha256") {
         val sha256Bytes = sha256Hex.chunked(2).map { it.toInt(16).toByte() }.toByteArray()
         val base64 = Base64.getEncoder().encodeToString(sha256Bytes)
 
-        println("SHA-256 (hex): $sha256Hex")
-        println("SHA-256 (Base64) for QR-code: $base64")
+        println("✅ SHA-256 (hex): $sha256Hex")
+        println("✅ SHA-256 (Base64) for QR-code: $base64")
     }
 }
 
