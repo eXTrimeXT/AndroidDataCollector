@@ -344,7 +344,6 @@ ExistingPeriodicWorkPolicy.REPLACE // Заменить существующую 
 ---
 
 ## Отладка
-
 ### Полезные команды ADB
 
 ```bash

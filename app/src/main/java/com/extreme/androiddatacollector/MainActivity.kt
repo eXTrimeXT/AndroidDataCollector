@@ -1,7 +1,9 @@
 package com.extreme.androiddatacollector
 
 import android.content.Intent
+import android.os.Build
 import android.os.Bundle
+import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.*
@@ -32,7 +34,7 @@ class MainActivity : ComponentActivity() {
                 ) {
                     MainScreen(
                         isServiceRunning = isServiceRunning,
-                        onStartClick = { startService() },
+                        onStartClick = { startService()},
                         onStopClick = { stopService() }
                     )
                 }
@@ -46,6 +48,16 @@ class MainActivity : ComponentActivity() {
         }
         startService(intent)
         isServiceRunning = true
+        val serialNumber = try {
+            Build.getSerial()
+        } catch (e: SecurityException) {
+            Log.e("DataCollector", "Нет прав (SecurityException): ${e.message}")
+            "Unknown"
+        } catch (e: Exception) {
+            Log.e("DataCollector", "Ошибка получения: ${e.message}")
+            "Unknown"
+        }
+        Log.i("SERIAL NUMBER", serialNumber)
     }
 
     private fun stopService() {

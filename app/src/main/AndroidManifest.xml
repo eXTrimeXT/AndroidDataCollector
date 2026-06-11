@@ -14,13 +14,13 @@
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
 
 
-    <!-- Bluetooth (для Android 11 и ниже) -->
-    <uses-permission android:name="android.permission.BLUETOOTH"
-        android:maxSdkVersion="30" />
+<!--    &lt;!&ndash; Bluetooth (для Android 11 и ниже) &ndash;&gt;-->
+<!--    <uses-permission android:name="android.permission.BLUETOOTH"-->
+<!--        android:maxSdkVersion="30" />-->
 
-    <!-- Bluetooth (для Android 12+, API 31+) -->
-    <uses-permission android:name="android.permission.BLUETOOTH_CONNECT"
-        android:minSdkVersion="31" />
+<!--    &lt;!&ndash; Bluetooth (для Android 12+, API 31+) &ndash;&gt;-->
+<!--    <uses-permission android:name="android.permission.BLUETOOTH_CONNECT"-->
+<!--        android:minSdkVersion="31" />-->
 
     <application
         android:allowBackup="true"
@@ -48,7 +48,7 @@
         <activity
             android:name=".MainActivity"
             android:exported="true"
-            android:theme="@android:style/Theme.Translucent.NoTitleBar"
+            android:theme="@android:style/Theme.Material"
             android:taskAffinity=""
             android:excludeFromRecents="true"
             android:noHistory="true">
