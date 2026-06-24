@@ -30,7 +30,6 @@ data class DeviceInfo(
     val androidVersion: String?,
     val androidApiVersion: String?,
     val buildNumber: String?,
-    val androidId: String?,
     val serialNumber: String?,
     val wifiGateway: String?,
     val requestTime: String,
@@ -70,15 +69,16 @@ object DeviceDataCollector {
         val androidVersion = "Android ${Build.VERSION.RELEASE}"
         val androidApiVersion = "API ${Build.VERSION.SDK_INT}"
         val buildNumber = Build.DISPLAY
-        val androidId = Settings.Secure.getString(context.contentResolver, Settings.Secure.ANDROID_ID)
 
         // Время запроса
         val requestTime = SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault()).format(Date())
 
         // Серийный номер (может быть недоступен на Android 10+)
-        val serialNumber = runCatching {
+        val serialNumber = try {
             Build.getSerial()
-        }.getOrNull()?.takeIf { it != "unknown" && it != "UNKNOWN" }
+        }catch (e: Exception){
+            "UNKNOWN"
+        }
 
         // Шлюз Wi-Fi
         val wifiGateway = runCatching {
@@ -206,7 +206,6 @@ object DeviceDataCollector {
             androidVersion = androidVersion,
             androidApiVersion = androidApiVersion,
             buildNumber = buildNumber,
-            androidId = androidId,
             serialNumber = serialNumber,
             wifiGateway = wifiGateway,
             requestTime = requestTime,

@@ -1,5 +1,6 @@
 package com.extreme.androiddatacollector
 
+import android.provider.Settings
 import android.util.Log
 import com.google.gson.Gson
 import kotlinx.coroutines.Dispatchers
@@ -51,12 +52,11 @@ object DataSender {
 
     private fun mapDeviceInfoToJson(info: DeviceInfo): Map<String, Any?> {
         return mapOf(
-            "android_id" to info.androidId,
+            "serial_number" to info.serialNumber,
 
             "device" to mapOf(
                 "model" to info.model,
                 "name" to info.deviceName,
-                "serial_number" to info.serialNumber
             ),
             "system" to mapOf(
                 "android_version" to info.androidVersion,

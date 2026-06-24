@@ -1,10 +1,13 @@
 package com.extreme.androiddatacollector
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.net.ConnectivityManager
 import android.net.NetworkCapabilities
 import android.os.Build
+import android.provider.Settings
 import android.util.Log
+import androidx.compose.ui.text.font.FontVariation
 import androidx.work.CoroutineWorker
 import androidx.work.WorkerParameters
 
@@ -13,17 +16,22 @@ class DataCollectionWorker(
     params: WorkerParameters
 ) : CoroutineWorker(context, params) {
 
+    @SuppressLint("HardwareIds")
     private fun getDeviceSerialNumber(): String {
-        return try {
-            Build.getSerial()
-        } catch (e: SecurityException) {
-            Log.e("DataCollector", "Нет прав (SecurityException): ${e.message}")
-            "Unknown"
-        } catch (e: Exception) {
-            Log.e("DataCollector", "Ошибка получения: ${e.message}")
-            "Unknown"
+        val androidId = Settings.Secure.getString(applicationContext.contentResolver, Settings.Secure.ANDROID_ID)
+            return try {
+                // Пытаемся получить серийный номер
+                val serial = Build.getSerial()
+                Log.d("DataCollector", "Получен серийный номер: $serial")
+                serial
+            } catch (e: SecurityException) {
+                Log.w("DataCollector", "Нет прав на серийный номер, используем Android ID")
+                "androidId: $androidId"
+            } catch (e: Exception) {
+                Log.w("DataCollector", "Ошибка получения серийного номера, используем Android ID: ${e.message}")
+                "androidId: $androidId"
+            }
         }
-    }
 
     override suspend fun doWork(): Result {
         // Проверяем наличие сети вручную

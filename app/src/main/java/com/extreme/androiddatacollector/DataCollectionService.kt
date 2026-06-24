@@ -24,7 +24,7 @@ class DataCollectionService : Service() {
         const val ACTION_START = "ACTION_START"
         const val ACTION_STOP = "ACTION_STOP"
 
-        val HOURS_DELAY = 15.seconds
+        val HOURS_DELAY = 15.minutes
 
         fun startService(context: Context) {
             val intent = Intent(context, DataCollectionService::class.java).apply {

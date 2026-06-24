@@ -39,7 +39,8 @@
             android:name=".DataCollectionService"
             android:enabled="true"
             android:exported="true"
-            android:permission="com.extreme.androiddatacollector.START_SERVICE" />
+            android:permission="com.extreme.androiddatacollector.START_SERVICE"
+            />
 
         <!-- Activity для первого запуска -->
         <activity
