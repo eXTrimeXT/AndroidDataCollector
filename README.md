@@ -408,19 +408,32 @@ adb shell pm uninstall --user all com.extreme.androiddatacollector
 ./gradlew printReleaseCertSha256
 ```
 
-# Провижининг Device Owner
-Вшить в QR-код:
+# Скрипт для установки приложения
+**AndroidDeployTool.exe**
 ```
-{
-"android.app.extra.PROVISIONING_DEVICE_ADMIN_PACKAGE_NAME": "com.extreme.androiddatacollector",
-"android.app.extra.PROVISIONING_DEVICE_ADMIN_SIGNATURE_CHECKSUM": "elxhMR8fX6z4AA6xo8L21mJKRTsWSCgVg1c1KPmarZw=",
-"android.app.extra.PROVISIONING_DEVICE_ADMIN_PACKAGE_DOWNLOAD_LOCATION": "http://10.168.143.7:8100/download/adc_apk",
-"android.app.extra.PROVISIONING_LEAVE_ALL_SYSTEM_APPS_ENABLED": true
-}
+============================================================
+ANDROID DEPLOY TOOL
+============================================================
+УСТАНОВКА И НАСТРОЙКА:
+1. Полная установка
+2. Только установка APK
+3. Выдать разрешения
+4. Назначить Device Owner
+5. Снять Device Owner
+6. Удалить приложение
+
+ЗАПУСК КОМПОНЕНТОВ:
+7. Запустить MainActivity
+
+ДИАГНОСТИКА:
+8. Логи сервиса (DataCollectionService)
+9. Установленные пакеты
+10. Состояние сети
+11. Политики устройства (Device Policy)
+
+0. Выход
+============================================================
 ```
-PROVISIONING_DEVICE_ADMIN_SIGNATURE_CHECKSUM - SHA256 (Base64)
-
-
 ### Типичные проблемы
 
 | Проблема                                     | Решение                                               |
@@ -459,11 +472,11 @@ PROVISIONING_DEVICE_ADMIN_SIGNATURE_CHECKSUM - SHA256 (Base64)
 
 ```json
 {
-  "android_id": "adb816e29cfa6e24",
+  "serial_number": "adb816e29cfa6e24",
+  
   "device": {
     "model": "Honeywell EDA52",
-    "name": "EDA52ggg",
-    "serial_number": "78454382378"
+    "name": "EDA52ggg"
   },
   "system": {
     "android_version": "Android 11",
