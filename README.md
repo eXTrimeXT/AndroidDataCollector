@@ -385,6 +385,12 @@ adb shell dpm remove-active-admin com.extreme.androiddatacollector/.MyDeviceAdmi
 
 # Удалить приложение
 adb shell pm uninstall --user all com.extreme.androiddatacollector  
+
+# Проверка работы запланированной службы
+adb shell dumpsys jobscheduler | findstr androiddatacollector
+
+# Посмотреть процессы
+adb shell ps | findstr com.extreme.androiddatacollector
 ```
 
 # Release Версия

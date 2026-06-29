@@ -21,6 +21,8 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.work.OneTimeWorkRequestBuilder
+import androidx.work.WorkManager
 
 /**
  * Минимальный начальный экран (опционально)
@@ -50,22 +52,21 @@ class MainActivity : ComponentActivity() {
     }
 
     private fun startService() {
-        val intent = Intent(this, DataCollectionService::class.java).apply {
-            action = DataCollectionService.ACTION_START
-        }
-        startService(intent)
+        // Запускаем WorkManager через BootReceiver
+        BootReceiver.scheduleDataCollection(this)
+
+        // Сразу выполняем одну отправку
+        val workRequest = OneTimeWorkRequestBuilder<DataCollectionWorker>().build()
+        WorkManager.getInstance(this).enqueue(workRequest)
+
         isServiceRunning = true
 
-        // Единый идентификатор — вместо дублирующего кода
         val deviceIdentifier = DeviceIdentifier.getDeviceIdentifier(this)
-        Log.i("DataCollector", "Идентификатор устройства: $deviceIdentifier")
+        Log.i("DataCollector", "Запущен сбор данных. ID устройства: $deviceIdentifier")
     }
 
     private fun stopService() {
-        val intent = Intent(this, DataCollectionService::class.java).apply {
-            action = DataCollectionService.ACTION_STOP
-        }
-        startService(intent)
+        BootReceiver.cancelDataCollection(this)
         isServiceRunning = false
     }
 

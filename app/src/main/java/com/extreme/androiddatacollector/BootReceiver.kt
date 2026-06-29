@@ -9,28 +9,50 @@ import java.util.concurrent.TimeUnit
 
 class BootReceiver : BroadcastReceiver() {
     override fun onReceive(context: Context, intent: Intent) {
-        if (intent.action == Intent.ACTION_BOOT_COMPLETED) {
-            Log.d("BootReceiver", "Boot completed. Scheduling periodic work.")
-            scheduleDataCollection(context)
+        val action = intent.action
+        Log.d("BootReceiver", "Получен broadcast: $action")
+
+        when (action) {
+            Intent.ACTION_BOOT_COMPLETED,
+            Intent.ACTION_USER_PRESENT,
+            "com.extreme.androiddatacollector.TEST_BOOT" -> {
+                Log.d("BootReceiver", "Запуск периодической задачи сбора данных")
+                scheduleDataCollection(context)
+            }
         }
     }
 
-    private fun scheduleDataCollection(context: Context) {
-        val constraints = Constraints.Builder()
-//            .setRequiredNetworkType(NetworkType.CONNECTED) // только при наличии интернета
-            .build()
+    companion object {
+        private const val WORK_NAME = "data_collection_work"
 
-        val workRequest = PeriodicWorkRequestBuilder<DataCollectionWorker>(
-            15, TimeUnit.SECONDS  // минимальный интервал — 15 минут на продакшене
-        )
-            .setConstraints(constraints)
-            .setInitialDelay(15, TimeUnit.SECONDS) // первый запуск через 15 секунд
-            .build()
+        fun scheduleDataCollection(context: Context) {
+            val constraints = Constraints.Builder()
+                .setRequiredNetworkType(NetworkType.CONNECTED)  // Только при наличии сети
+                .setRequiresBatteryNotLow(false)                // Работает даже при низком заряде
+                .build()
 
-        WorkManager.getInstance(context).enqueueUniquePeriodicWork(
-            "data_collection",
-            ExistingPeriodicWorkPolicy.REPLACE,
-            workRequest
-        )
+            val workRequest = PeriodicWorkRequestBuilder<DataCollectionWorker>(
+                15, TimeUnit.MINUTES  // Минимальный интервал для PeriodicWorkRequest
+            )
+                .setConstraints(constraints)
+                .setBackoffCriteria(
+                    BackoffPolicy.EXPONENTIAL,
+                    1, TimeUnit.MINUTES
+                )
+                .build()
+
+            WorkManager.getInstance(context).enqueueUniquePeriodicWork(
+                WORK_NAME,
+                ExistingPeriodicWorkPolicy.KEEP,  // Не дублировать, если уже есть
+                workRequest
+            )
+
+            Log.d("BootReceiver", "Задача WorkManager запланирована (интервал: 15 мин)")
+        }
+
+        fun cancelDataCollection(context: Context) {
+            WorkManager.getInstance(context).cancelUniqueWork(WORK_NAME)
+            Log.d("BootReceiver", "Задача WorkManager отменена")
+        }
     }
 }
