@@ -251,7 +251,7 @@ fun MainScreen(
 fun MainScreenPreview() {
     MaterialTheme {
         MainScreen(
-            isServiceRunning = true,
+            isServiceRunning = false,
             onStartClick = {},
             onStopClick = {},
             onRemoveDeviceOwner = {}

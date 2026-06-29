@@ -5,148 +5,108 @@ import android.app.admin.DevicePolicyManager
 import android.content.ComponentName
 import android.content.Context
 import android.os.Build
+import android.os.UserManager
 import android.provider.Settings
 import android.util.Log
+import java.io.File
 
-/**
- * Единый механизм получения и сохранения идентификатора устройства.
- * Использует DevicePolicyManager для записи в Settings.Secure (требует Device Owner).
- */
 object DeviceIdentifier {
     private const val TAG = "DeviceIdentifier"
-    private const val KEY_SERIAL = "MySerialNumber"
+    private const val FILE_NAME = "device_serial.txt"
     private const val PREFIX_ANDROID_ID = "androidId:"
 
     @SuppressLint("HardwareIds")
     fun getDeviceIdentifier(context: Context): String {
-        // 1. Пробуем прочитать ранее сохранённый идентификатор
-        val saved = getSavedIdentifier(context)
+        // 1. Защищаем приложение от очистки данных (только для Device Owner)
+        protectAppData(context)
+
+        // 2. Пробуем прочитать сохранённый идентификатор
+        val saved = readFromFile(context)
         if (saved != null) {
             Log.d(TAG, "Используем сохранённый идентификатор: $saved")
             return saved
         }
 
-        // 2. Пытаемся получить серийный номер
+        // 3. Получаем серийный номер
         val serial = try {
-            val s = Build.getSerial()
-            Log.d(TAG, "Получен серийный номер: $s")
-            s
-        } catch (e: SecurityException) {
-            Log.w(TAG, "Нет прав на серийный номер: ${e.message}")
-            null
+            Build.getSerial()
         } catch (e: Exception) {
-            Log.w(TAG, "Ошибка получения серийного номера: ${e.message}")
+            Log.w(TAG, "Не удалось получить серийный номер: ${e.message}")
             null
         }
 
-        // 3. Если сериал получен — сохраняем его
+        // 4. Если сериал получен — сохраняем и возвращаем
         if (!serial.isNullOrBlank()) {
-            saveIdentifier(context, serial)
+            saveToFile(context, serial)
             return serial
         }
 
-        // 4. Fallback — используем androidId
+        // 5. Fallback — androidId
         val androidId = Settings.Secure.getString(
             context.contentResolver,
             Settings.Secure.ANDROID_ID
         )
-
         val fallback = if (!androidId.isNullOrBlank()) {
             "$PREFIX_ANDROID_ID$androidId"
         } else {
             "unknown_${System.currentTimeMillis()}"
         }
 
-        Log.w(TAG, "Серийный номер недоступен, используем fallback: $fallback")
-        saveIdentifier(context, fallback)
+        Log.w(TAG, "Используем fallback: $fallback")
+        saveToFile(context, fallback)
         return fallback
     }
 
-    /**
-     * Читает сохранённый идентификатор.
-     * Сначала через DevicePolicyManager (если Device Owner),
-     * потом через Settings.Secure (для чтения не нужны особые права).
-     */
-    private fun getSavedIdentifier(context: Context): String? {
-        // Способ 1: Через DevicePolicyManager (если приложение — Device Owner)
-        try {
-            val dpm = context.getSystemService(Context.DEVICE_POLICY_SERVICE) as DevicePolicyManager
-            val admin = ComponentName(context, MyDeviceAdminReceiver::class.java)
-            if (dpm.isDeviceOwnerApp(context.packageName)) {
-                val value = Settings.Secure.getString(context.contentResolver,KEY_SERIAL)
-                if (!value.isNullOrBlank()) {
-                    return value
-                }
-            }
-        } catch (e: Exception) {
-            Log.w(TAG, "Не удалось прочитать через DevicePolicyManager: ${e.message}")
-        }
-
-        // Способ 2: Напрямую из Settings.Secure (на случай если Device Owner снят)
+    private fun readFromFile(context: Context): String? {
         return try {
-            Settings.Secure.getString(context.contentResolver, KEY_SERIAL)?.takeIf { it.isNotBlank() }
+            val file = File(context.filesDir, FILE_NAME)
+            if (file.exists()) {
+                file.readText().takeIf { it.isNotBlank() }
+            } else null
         } catch (e: Exception) {
-            Log.e(TAG, "Ошибка чтения из Settings.Secure: ${e.message}")
+            Log.w(TAG, "Ошибка чтения файла: ${e.message}")
             null
         }
     }
 
-    /**
-     * Сохраняет идентификатор.
-     * Сначала через DevicePolicyManager (требует Device Owner),
-     * потом через Settings.Secure (как fallback).
-     */
-    private fun saveIdentifier(context: Context, value: String) {
-        var saved = false
-
-        // Способ 1: Через DevicePolicyManager (основной)
+    private fun saveToFile(context: Context, value: String) {
         try {
-            val dpm = context.getSystemService(Context.DEVICE_POLICY_SERVICE) as DevicePolicyManager
-            val admin = ComponentName(context, MyDeviceAdminReceiver::class.java)
-            if (dpm.isDeviceOwnerApp(context.packageName)) {
-//                dpm.setSecureSetting(admin, KEY_SERIAL, value)
-                Settings.Secure.putString(context.contentResolver, KEY_SERIAL, value)
-                Log.d(TAG, "Идентификатор сохранён через DevicePolicyManager: $value")
-                saved = true
-            }
+            val file = File(context.filesDir, FILE_NAME)
+            file.writeText(value)
+            Log.d(TAG, "Идентификатор сохранён в файл: $value")
         } catch (e: Exception) {
-            Log.w(TAG, "Не удалось сохранить через DevicePolicyManager: ${e.message}")
-        }
-
-        // Способ 2: Через Settings.Secure (fallback, если не Device Owner)
-        if (!saved) {
-            try {
-                Settings.Secure.putString(context.contentResolver, KEY_SERIAL, value)
-                Log.d(TAG, "Идентификатор сохранён через Settings.Secure: $value")
-            } catch (e: SecurityException) {
-                Log.e(TAG, "Нет прав WRITE_SECURE_SETTINGS. Идентификатор не сохранён: ${e.message}")
-            } catch (e: Exception) {
-                Log.e(TAG, "Ошибка сохранения в Settings.Secure: ${e.message}")
-            }
+            Log.e(TAG, "Ошибка записи в файл: ${e.message}")
         }
     }
 
     /**
-     * Сбрасывает сохранённый идентификатор (для отладки)
+     * Запрещает пользователю очищать данные приложения через настройки.
+     * Работает только для Device Owner.
      */
-    fun clearSavedIdentifier(context: Context) {
+    private fun protectAppData(context: Context) {
         try {
             val dpm = context.getSystemService(Context.DEVICE_POLICY_SERVICE) as DevicePolicyManager
             val admin = ComponentName(context, MyDeviceAdminReceiver::class.java)
+
             if (dpm.isDeviceOwnerApp(context.packageName)) {
-                dpm.setSecureSetting(admin, KEY_SERIAL, "")
-                Log.d(TAG, "Сохранённый идентификатор очищен через DevicePolicyManager")
-                return
+                // Запрещаем пользователю управлять приложениями (включая очистку данных)
+                dpm.addUserRestriction(admin, UserManager.DISALLOW_APPS_CONTROL)
+                Log.d(TAG, "Защита от очистки данных активирована")
             }
         } catch (e: Exception) {
-            Log.w(TAG, "Не удалось очистить через DevicePolicyManager: ${e.message}")
+            Log.w(TAG, "Не удалось активировать защиту: ${e.message}")
         }
+    }
 
+    fun clearSavedIdentifier(context: Context) {
         try {
-            Settings.Secure.putString(context.contentResolver, KEY_SERIAL, "")
-            Log.d(TAG, "Сохранённый идентификатор очищен через Settings.Secure")
+            val file = File(context.filesDir, FILE_NAME)
+            if (file.exists()) {
+                file.delete()
+                Log.d(TAG, "Файл с идентификатором удалён")
+            }
         } catch (e: Exception) {
-            Log.e(TAG, "Ошибка очистки: ${e.message}")
+            Log.e(TAG, "Ошибка удаления: ${e.message}")
         }
     }
 }
