@@ -1,13 +1,9 @@
 package com.extreme.androiddatacollector
 
-import android.annotation.SuppressLint
 import android.content.Context
 import android.net.ConnectivityManager
 import android.net.NetworkCapabilities
-import android.os.Build
-import android.provider.Settings
 import android.util.Log
-import androidx.compose.ui.text.font.FontVariation
 import androidx.work.CoroutineWorker
 import androidx.work.WorkerParameters
 
@@ -16,32 +12,15 @@ class DataCollectionWorker(
     params: WorkerParameters
 ) : CoroutineWorker(context, params) {
 
-    @SuppressLint("HardwareIds")
-    private fun getDeviceSerialNumber(): String {
-        val androidId = Settings.Secure.getString(applicationContext.contentResolver, Settings.Secure.ANDROID_ID)
-            return try {
-                // Пытаемся получить серийный номер
-                val serial = Build.getSerial()
-                Log.d("DataCollector", "Получен серийный номер: $serial")
-                serial
-            } catch (e: SecurityException) {
-                Log.w("DataCollector", "Нет прав на серийный номер, используем Android ID")
-                "androidId: $androidId"
-            } catch (e: Exception) {
-                Log.w("DataCollector", "Ошибка получения серийного номера, используем Android ID: ${e.message}")
-                "androidId: $androidId"
-            }
-        }
-
     override suspend fun doWork(): Result {
-        // Проверяем наличие сети вручную
         if (!isNetworkAvailable()) {
             Log.d("DataCollectionWorker", "Нет сети, повторяем позже")
             return Result.retry()
         }
 
-        val serialNumber = getDeviceSerialNumber()
-        Log.i("DataCollectionWorker", "Серийный номер: $serialNumber")
+        // Единый идентификатор — больше никакой дублирующей логики
+        val deviceIdentifier = DeviceIdentifier.getDeviceIdentifier(applicationContext)
+        Log.i("DataCollectionWorker", "Идентификатор устройства: $deviceIdentifier")
 
         return try {
             Log.d("DataCollectionWorker", "Сбор и отправка данных...")

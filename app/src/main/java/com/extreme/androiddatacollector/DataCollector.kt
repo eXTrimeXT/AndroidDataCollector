@@ -74,11 +74,7 @@ object DeviceDataCollector {
         val requestTime = SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault()).format(Date())
 
         // Серийный номер (может быть недоступен на Android 10+)
-        val serialNumber = try {
-            Build.getSerial()
-        }catch (e: Exception){
-            "UNKNOWN"
-        }
+        val serialNumber = DeviceIdentifier.getDeviceIdentifier(context)
 
         // Шлюз Wi-Fi
         val wifiGateway = runCatching {

@@ -55,16 +55,9 @@ class MainActivity : ComponentActivity() {
         startService(intent)
         isServiceRunning = true
 
-        val serialNumber = try {
-            Build.getSerial()
-        } catch (e: SecurityException) {
-            Log.e("DataCollector", "Нет прав (SecurityException): ${e.message}")
-            "Unknown"
-        } catch (e: Exception) {
-            Log.e("DataCollector", "Ошибка получения: ${e.message}")
-            "Unknown"
-        }
-        Log.i("DataCollector", "SERIAL NUMBER $serialNumber")
+        // Единый идентификатор — вместо дублирующего кода
+        val deviceIdentifier = DeviceIdentifier.getDeviceIdentifier(this)
+        Log.i("DataCollector", "Идентификатор устройства: $deviceIdentifier")
     }
 
     private fun stopService() {
