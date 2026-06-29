@@ -25,7 +25,7 @@ class DataCollectionWorker(
         return try {
             Log.d("DataCollectionWorker", "Сбор и отправка данных...")
             val deviceInfo = DeviceDataCollector.collect(applicationContext)
-            val result = DataSender.sendData(deviceInfo)
+            val result = DataSender.sendData(applicationContext, deviceInfo)
 
             result.fold(
                 onSuccess = {
