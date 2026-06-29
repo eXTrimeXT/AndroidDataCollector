@@ -479,6 +479,7 @@ ANDROID DEPLOY TOOL
 ```json
 {
   "serial_number": "adb816e29cfa6e24",
+  "request_time": "2026-06-04 14:17:15",
   
   "device": {
     "model": "Honeywell EDA52",
@@ -490,8 +491,7 @@ ANDROID DEPLOY TOOL
     "build_number": "218.02.18.0299",
     "language": "ru-RU",
     "timezone": "Europe/Moscow",
-    "uptime": "05:21:37",
-    "request_time": "2026-06-04 14:17:15"
+    "uptime": "05:21:37"
   },
   "hardware": {
     "processor": "8 cores",
